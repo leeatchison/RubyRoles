@@ -21,7 +21,6 @@ module RubyRoles
           @roles_field_name
         end
 
-
         # Sets the acceptable list of Roles
         def self.roles(*roles_list)
           @role_list = canonical_syms *roles_list
