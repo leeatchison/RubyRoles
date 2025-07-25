@@ -18,6 +18,14 @@ gem install RubyRoles
 
 ## Usage
 
+```ruby
+class MyModel < ApplicationRecord
+  include RubyRoles::Concerns::RolesMgmt
+  roles_field :roles_mask
+  roles :sysadmin, :syssupport # , ... << # NOTE: Never remove entries, never reorder entries, always add to the end of the list only
+end
+```
+
 TODO: Write usage instructions here
 
 ## Development

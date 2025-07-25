@@ -6,12 +6,22 @@ module RubyRoles
 
       included do
         @role_list = []
+        @roles_field_name = :roles_mask
 
         #
         #
         # Class Methods
         #
         #
+
+        # Sets the roles field name
+        def self.roles_field name
+          @roles_field_name = name || :roles_mask
+        end
+        def self.get_roles_field
+          @roles_field_name
+        end
+
 
         # Sets the acceptable list of Roles
         def self.roles(*roles_list)
@@ -52,7 +62,7 @@ module RubyRoles
         end
         # Return list of human readable strings matching the roles
         def roles_human_readable
-          self.class.roles_bits_to_syms(self.roles_mask).map { |role|self.class.role_human_readable role }
+          self.class.roles_bits_to_syms(self.send(self.get_roles_field)).map { |role|self.class.role_human_readable role }
         end
 
 
@@ -89,39 +99,42 @@ module RubyRoles
       #
       #
 
+      def get_roles_field
+        self.class.get_roles_field
+      end
       # Set the valid set of roles for a given user
       def roles=(*roles)
-        self.roles_mask = self.class.roles_syms_to_bits(*roles)
+        self.send("#{ self.get_roles_field }=", self.class.roles_syms_to_bits(*roles) )
         self.roles
       end
 
       # Return the list of roles this user has
       def roles
-        self.class.roles_bits_to_syms(roles_mask)
+        self.class.roles_bits_to_syms(send(self.get_roles_field))
       end
 
       # Returns TRUE if user has this specific role
       def has_role?(role)
-        (self.roles_mask & self.class.roles_syms_to_bits(role)) !=0
+        (self.send(self.get_roles_field) & self.class.roles_syms_to_bits(role)) !=0
       end
 
       # Returns TRUE if user has any of the specified roles
       def has_any_roles?(*roles)
-        (self.roles_mask & self.class.roles_syms_to_bits(*roles)) !=0
+        (self.send(self.get_roles_field) & self.class.roles_syms_to_bits(*roles)) !=0
       end
 
       # Returns TRUE if user has all the specified roles
       def has_all_roles?(*roles)
         bits = self.class.roles_syms_to_bits(*roles)
-        (self.roles_mask & bits) == bits
+        (self.send(self.get_roles_field) & bits) == bits
       end
 
       def add_roles(*roles)
-        self.roles_mask = (self.roles_mask||0) | self.class.roles_syms_to_bits(*roles)
+        self.send("#{ self.get_roles_field }=", (self.send(self.get_roles_field)||0) | self.class.roles_syms_to_bits(*roles) )
         self.roles
       end
       def delete_roles(*roles)
-        self.roles_mask = (self.roles_mask||0) & ~self.class.roles_syms_to_bits(*roles)
+        self.send("#{ self.get_roles_field }=", (self.send(self.get_roles_field)||0) & ~self.class.roles_syms_to_bits(*roles) )
         self.roles
       end
     end
