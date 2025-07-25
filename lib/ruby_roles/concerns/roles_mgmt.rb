@@ -3,7 +3,6 @@ module RubyRoles
     module RolesMgmt
       extend ActiveSupport::Concern
 
-
       included do
         @role_list = []
         @roles_field_name = :roles_mask
